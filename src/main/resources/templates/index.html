@@ -1,0 +1,115 @@
+
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inicio | Ferretería Pro</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body>
+
+<div class="app-layout">
+
+    <aside class="sidebar">
+        <a href="/" class="brand">
+            <span class="brand-icon">F</span>
+            <span>Ferretería<span class="brand-light">Pro</span></span>
+        </a>
+
+        <p class="menu-label">MENÚ PRINCIPAL</p>
+
+        <nav class="navigation">
+            <a href="/" class="nav-link active">▦ &nbsp; Inicio</a>
+            <a href="/productos" class="nav-link">▤ &nbsp; Productos</a>
+            <a href="/ventas" class="nav-link">↗ &nbsp; Ventas</a>
+        </nav>
+
+        <div class="sidebar-bottom">
+            <div class="store-avatar">FP</div>
+            <div>
+                <strong>Ferretería Pro</strong>
+                <small>Panel administrativo</small>
+            </div>
+        </div>
+    </aside>
+
+    <main class="main-content">
+
+        <header class="topbar">
+            <div>
+                <p class="eyebrow">PANEL DE CONTROL</p>
+                <h1>¡Bienvenido!</h1>
+            </div>
+            <span class="status"><span></span> Sistema activo</span>
+        </header>
+
+        <section class="welcome-banner">
+            <div class="welcome-copy">
+                <span class="banner-tag">GESTIÓN INTELIGENTE</span>
+                <h2>Todo para construir.<br>Todo bajo control.</h2>
+                <p>Administra tus productos, controla tus existencias
+                    y organiza las ventas desde un solo lugar.</p>
+                <a href="/productos" class="primary-button">
+                    Explorar productos <span>→</span>
+                </a>
+            </div>
+
+            <div class="banner-decoration">
+                <div class="circle circle-one"></div>
+                <div class="circle circle-two"></div>
+                <div class="tool-emoji">🔨</div>
+            </div>
+        </section>
+
+        <section class="section-heading">
+            <h2>Resumen general</h2>
+            <p>Accede rápidamente a las principales áreas de tu negocio.</p>
+        </section>
+
+        <section class="stats-grid">
+            <article class="stat-card">
+                <div class="stat-icon orange">▤</div>
+                <p class="stat-label">INVENTARIO</p>
+                <h3>Productos</h3>
+                <p>Administra herramientas y materiales.</p>
+                <a href="/productos" class="card-link">Gestionar productos →</a>
+            </article>
+
+            <article class="stat-card">
+                <div class="stat-icon blue">↗</div>
+                <p class="stat-label">COMERCIAL</p>
+                <h3>Ventas</h3>
+                <p>Registra las operaciones de tu negocio.</p>
+                <a href="/ventas" class="card-link">Ir a ventas →</a>
+            </article>
+
+            <article class="stat-card">
+                <div class="stat-icon green">✓</div>
+                <p class="stat-label">PLATAFORMA</p>
+                <h3>Sistema activo</h3>
+                <p>Tu aplicación está lista para trabajar.</p>
+                <span class="availability">Disponible</span>
+            </article>
+        </section>
+
+        <section class="info-panel">
+            <div class="info-symbol">i</div>
+            <div>
+                <h3>Tu negocio, organizado</h3>
+                <p>En los siguientes módulos podrás administrar
+                    productos, controlar existencias y registrar ventas.
+                    La información se guardará en PostgreSQL.</p>
+            </div>
+        </section>
+
+        <footer>
+            <span>Ferretería Pro</span>
+            <span>Gestión de inventario y ventas</span>
+        </footer>
+
+    </main>
+</div>
+
+</body>
+</html>

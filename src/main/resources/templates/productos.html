@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Productos | Ferretería Pro</title>
+
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body>
+
+<div class="app-layout">
+
+    <!-- MENÚ LATERAL -->
+    <aside class="sidebar">
+
+        <a th:href="@{/}" class="brand">
+            <span class="brand-icon">F</span>
+            <span>Ferretería<span class="brand-light">Pro</span></span>
+        </a>
+
+        <p class="menu-label">MENÚ PRINCIPAL</p>
+
+        <nav class="sidebar-nav">
+            <a th:href="@{/}" class="nav-link">
+                <span>▦</span> Inicio
+            </a>
+
+            <a th:href="@{/productos}" class="nav-link active">
+                <span>▤</span> Productos
+            </a>
+
+            <a th:href="@{/ventas}" class="nav-link">
+                <span>↗</span> Ventas
+            </a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <span class="status-dot"></span>
+            Sistema activo
+        </div>
+
+    </aside>
+
+    <!-- CONTENIDO PRINCIPAL -->
+    <main class="main-content">
+
+        <header class="page-header">
+            <div>
+                <span class="eyebrow">INVENTARIO</span>
+                <h1>Productos</h1>
+                <p class="page-description">
+                    Administra las herramientas y materiales de tu ferretería.
+                </p>
+            </div>
+
+            <a th:href="@{/productos/nuevo}" class="btn btn-primary">
+                <span>＋</span> Nuevo producto
+            </a>
+        </header>
+
+        <!-- MENSAJES -->
+        <div th:if="${mensaje}" class="alert alert-success"
+             th:text="${mensaje}">
+        </div>
+
+        <div th:if="${error}" class="alert alert-error"
+             th:text="${error}">
+        </div>
+
+        <!-- RESUMEN -->
+        <section class="stats-grid">
+
+            <article class="stat-card">
+                <div class="stat-icon stat-orange">▤</div>
+                <div>
+                    <span class="stat-label">PRODUCTOS REGISTRADOS</span>
+                    <h2 th:text="${#lists.size(productos)}">0</h2>
+                    <p>Productos en el inventario</p>
+                </div>
+            </article>
+
+            <article class="stat-card">
+                <div class="stat-icon stat-blue">▦</div>
+                <div>
+                    <span class="stat-label">UNIDADES DISPONIBLES</span>
+                    <h2 th:text="${#aggregates.sum(productos.![existencias]) ?: 0}">0</h2>
+                    <p>Existencias acumuladas</p>
+                </div>
+            </article>
+
+            <article class="stat-card">
+                <div class="stat-icon stat-green">✓</div>
+                <div>
+                    <span class="stat-label">ESTADO DEL SISTEMA</span>
+                    <h2 class="status-text">Activo</h2>
+                    <p>Inventario disponible</p>
+                </div>
+            </article>
+
+        </section>
+
+        <!-- TABLA DE PRODUCTOS -->
+        <section class="content-card">
+
+            <div class="section-heading">
+                <div>
+                    <h2>Inventario de productos</h2>
+                    <p>Consulta los precios y las existencias registradas.</p>
+                </div>
+
+                <span class="product-counter"
+                      th:text="${#lists.size(productos)} + ' productos'">
+                    0 productos
+                </span>
+            </div>
+
+            <!-- INVENTARIO VACÍO -->
+            <div th:if="${#lists.isEmpty(productos)}" class="empty-state">
+
+                <div class="empty-icon">▤</div>
+
+                <h3>Aún no hay productos registrados</h3>
+
+                <p>
+                    Comienza agregando herramientas, materiales y suministros.
+                </p>
+
+                <a th:href="@{/productos/nuevo}" class="btn btn-primary">
+                    ＋ Registrar primer producto
+                </a>
+
+            </div>
+
+            <!-- INVENTARIO CON PRODUCTOS -->
+            <div th:unless="${#lists.isEmpty(productos)}"
+                 class="table-container">
+
+                <table class="products-table">
+
+                    <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>PRODUCTO</th>
+                        <th>CATEGORÍA</th>
+                        <th>PRECIO</th>
+                        <th>EXISTENCIAS</th>
+                        <th>ACCIONES</th>
+                    </tr>
+                    </thead>
+
+                    <tbody>
+                    <tr th:each="producto : ${productos}">
+
+                        <td class="id-cell"
+                            th:text="${producto.id}">1</td>
+
+                        <td>
+                            <div class="product-name"
+                                 th:text="${producto.nombre}">
+                                Martillo Profesional
+                            </div>
+
+                            <div class="product-description"
+                                 th:text="${producto.descripcion != null and !producto.descripcion.isBlank()
+                                 ? producto.descripcion : 'Sin descripción'}">
+                                Herramienta
+                            </div>
+                        </td>
+
+                        <td>
+                            <span class="category-badge"
+                                  th:text="${producto.categoria}">
+                                Herramientas
+                            </span>
+                        </td>
+
+                        <td class="price-cell">
+                            <span>Q</span>
+                            <span th:text="${#numbers.formatDecimal(producto.precio, 1, 2)}">
+                                85.00
+                            </span>
+                        </td>
+
+                        <td>
+                            <span class="stock-badge"
+                                  th:classappend="${producto.existencias == 0 ? ' stock-empty' :
+                                  (producto.existencias <= 5 ? ' stock-low' : '')}"
+                                  th:text="${producto.existencias} + ' unidades'">
+                                20 unidades
+                            </span>
+                        </td>
+
+                        <td>
+                            <div class="table-actions">
+
+                                <a th:href="@{/productos/editar/{id}(id=${producto.id})}"
+                                   class="btn btn-small btn-edit">
+                                    Editar
+                                </a>
+
+                                <form th:action="@{/productos/eliminar/{id}(id=${producto.id})}"
+                                      method="post"
+                                      onsubmit="return confirm('¿Estás segura de eliminar este producto?');">
+
+                                    <button type="submit"
+                                            class="btn btn-small btn-delete">
+                                        Eliminar
+                                    </button>
+
+                                </form>
+
+                            </div>
+                        </td>
+
+                    </tr>
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </section>
+
+        <footer class="page-footer">
+            <span>Ferretería Pro</span>
+            <span>Gestión de inventario</span>
+        </footer>
+
+    </main>
+
+</div>
+
+</body>
+</html>

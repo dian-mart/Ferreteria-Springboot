@@ -1,0 +1,400 @@
+
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Factura | Ferretería Pro</title>
+
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+
+    <style>
+        .invoice-page {
+            max-width: 900px;
+            margin: 40px auto;
+            padding: 24px;
+        }
+
+        .invoice-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .invoice-button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 12px 20px;
+            border: 0;
+            border-radius: 10px;
+            background: #17283f;
+            color: white;
+            font-weight: 700;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .invoice-button.primary {
+            background: #ff9e0b;
+            color: #17283f;
+        }
+
+        .invoice-card {
+            background: white;
+            border: 1px solid #e4eaf2;
+            border-radius: 18px;
+            padding: 42px;
+            box-shadow: 0 12px 35px rgba(23, 40, 63, 0.08);
+        }
+
+        .invoice-header {
+            display: flex;
+            justify-content: space-between;
+            gap: 24px;
+            padding-bottom: 28px;
+            border-bottom: 2px solid #ff9e0b;
+        }
+
+        .invoice-brand {
+            color: #17283f;
+            font-size: 28px;
+            font-weight: 800;
+            margin: 0;
+        }
+
+        .invoice-brand span {
+            color: #ff9e0b;
+        }
+
+        .invoice-subtitle {
+            color: #788897;
+            margin-top: 8px;
+        }
+
+        .invoice-number {
+            text-align: right;
+        }
+
+        .invoice-number h2 {
+            color: #17283f;
+            margin: 0 0 8px;
+        }
+
+        .invoice-section {
+            margin-top: 28px;
+        }
+
+        .invoice-section h3 {
+            color: #17283f;
+            margin-bottom: 16px;
+        }
+
+        .invoice-info {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 16px;
+        }
+
+        .invoice-info-item {
+            padding: 16px;
+            background: #f5f7fb;
+            border-radius: 10px;
+        }
+
+        .invoice-label {
+            display: block;
+            color: #788897;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+
+        .invoice-value {
+            color: #17283f;
+            font-weight: 700;
+            overflow-wrap: anywhere;
+        }
+
+        .invoice-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 16px;
+        }
+
+        .invoice-table th {
+            background: #17283f;
+            color: white;
+            text-align: left;
+            padding: 14px 12px;
+        }
+
+        .invoice-table td {
+            padding: 16px 12px;
+            border-bottom: 1px solid #e4eaf2;
+        }
+
+        .invoice-table .number {
+            text-align: right;
+            white-space: nowrap;
+        }
+
+        .invoice-total {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 24px;
+        }
+
+        .invoice-total-box {
+            min-width: 260px;
+            padding: 22px;
+            background: #fff4df;
+            border-radius: 12px;
+        }
+
+        .invoice-total-label {
+            color: #7b6540;
+            font-weight: 700;
+        }
+
+        .invoice-total-value {
+            display: block;
+            margin-top: 8px;
+            color: #b76500;
+            font-size: 30px;
+            font-weight: 800;
+        }
+
+        .invoice-footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #e4eaf2;
+            text-align: center;
+            color: #788897;
+        }
+
+        @media (max-width: 600px) {
+            .invoice-page {
+                padding: 12px;
+                margin: 12px auto;
+            }
+
+            .invoice-card {
+                padding: 20px;
+            }
+
+            .invoice-header {
+                flex-direction: column;
+            }
+
+            .invoice-number {
+                text-align: left;
+            }
+
+            .invoice-info {
+                grid-template-columns: 1fr;
+            }
+
+            .invoice-table {
+                font-size: 12px;
+            }
+
+            .invoice-table th,
+            .invoice-table td {
+                padding: 9px 5px;
+            }
+
+            .invoice-total-value {
+                font-size: 24px;
+            }
+        }
+
+        @media print {
+            @page {
+                size: A4;
+                margin: 15mm;
+            }
+
+            body {
+                background: white !important;
+                margin: 0 !important;
+                color: #17283f !important;
+                print-color-adjust: exact;
+                -webkit-print-color-adjust: exact;
+            }
+
+            .invoice-page {
+                max-width: none;
+                margin: 0;
+                padding: 0;
+            }
+
+            .invoice-actions {
+                display: none !important;
+            }
+
+            .invoice-card {
+                border: none;
+                border-radius: 0;
+                box-shadow: none;
+                padding: 0;
+            }
+
+            .invoice-section,
+            .invoice-header,
+            .invoice-total {
+                break-inside: avoid;
+            }
+
+            .invoice-table {
+                break-inside: avoid;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<main class="invoice-page">
+
+    <div class="invoice-actions">
+        <a class="invoice-button"
+           th:href="@{/ventas}">
+            ← Volver a ventas
+        </a>
+
+        <button class="invoice-button primary"
+                type="button"
+                onclick="window.print()">
+            Imprimir / Guardar PDF
+        </button>
+    </div>
+
+    <article class="invoice-card">
+
+        <header class="invoice-header">
+            <div>
+                <h1 class="invoice-brand">
+                    Ferretería<span>Pro</span>
+                </h1>
+
+                <p class="invoice-subtitle">
+                    Herramientas y materiales para construir.
+                </p>
+            </div>
+
+            <div class="invoice-number">
+                <h2>FACTURA</h2>
+
+                <p>
+                    <strong>No. de venta:</strong>
+                    <span th:text="${venta.id}">1</span>
+                </p>
+
+                <p>
+                    <strong>Fecha:</strong>
+                    <span th:text="${#temporals.format(
+                        venta.fecha, 'dd/MM/yyyy HH:mm')}">
+                        08/10/2026 15:30
+                    </span>
+                </p>
+            </div>
+        </header>
+
+        <section class="invoice-section">
+            <h3>Detalle de la operación</h3>
+
+            <div class="invoice-info">
+                <div class="invoice-info-item">
+                    <span class="invoice-label">Producto</span>
+                    <span class="invoice-value"
+                          th:text="${venta.producto.nombre}">
+                        Martillo Profesional
+                    </span>
+                </div>
+
+                <div class="invoice-info-item">
+                    <span class="invoice-label">Categoría</span>
+                    <span class="invoice-value"
+                          th:text="${venta.producto.categoria}">
+                        Herramientas
+                    </span>
+                </div>
+            </div>
+        </section>
+
+        <section class="invoice-section">
+            <h3>Productos vendidos</h3>
+
+            <table class="invoice-table">
+                <thead>
+                    <tr>
+                        <th>Descripción</th>
+                        <th class="number">Cantidad</th>
+                        <th class="number">Precio unitario</th>
+                        <th class="number">Importe</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    <tr>
+                        <td th:text="${venta.producto.nombre}">
+                            Martillo Profesional
+                        </td>
+
+                        <td class="number"
+                            th:text="${venta.cantidad}">
+                            2
+                        </td>
+
+                        <td class="number">
+                            Q
+                            <span th:text="${#numbers.formatDecimal(
+                                venta.precioUnitario, 1, 2)}">
+                                85.00
+                            </span>
+                        </td>
+
+                        <td class="number">
+                            Q
+                            <span th:text="${#numbers.formatDecimal(
+                                venta.total, 1, 2)}">
+                                170.00
+                            </span>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="invoice-total">
+                <div class="invoice-total-box">
+                    <span class="invoice-total-label">
+                        TOTAL DE LA VENTA
+                    </span>
+
+                    <strong class="invoice-total-value">
+                        Q
+                        <span th:text="${#numbers.formatDecimal(
+                            venta.total, 1, 2)}">
+                            170.00
+                        </span>
+                    </strong>
+                </div>
+            </div>
+        </section>
+
+        <footer class="invoice-footer">
+            <p><strong>Ferretería Pro</strong></p>
+            <p>Gracias por tu compra.</p>
+            <p>Comprobante interno de venta.</p>
+        </footer>
+
+    </article>
+
+</main>
+
+</body>
+</html>

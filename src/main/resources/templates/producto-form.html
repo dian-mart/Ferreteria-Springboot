@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${producto.id != null ? 'Editar producto' : 'Nuevo producto'} + ' | Ferretería Pro'">
+        Nuevo producto | Ferretería Pro
+    </title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+    <style>
+        .product-form-container {
+            max-width: 850px;
+            margin: 0 auto;
+        }
+
+        .product-form-card {
+            background: #ffffff;
+            border: 1px solid #e8ecf2;
+            border-radius: 20px;
+            padding: 32px;
+            box-shadow: 0 12px 35px rgba(23, 40, 63, 0.07);
+        }
+
+        .form-heading {
+            margin-bottom: 28px;
+        }
+
+        .form-heading h1 {
+            margin: 8px 0 10px;
+            color: #17283f;
+            font-size: 2rem;
+        }
+
+        .form-heading p {
+            color: #788497;
+            margin: 0;
+            line-height: 1.6;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 22px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 9px;
+        }
+
+        .form-group.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .form-group label {
+            color: #26374d;
+            font-size: 0.94rem;
+            font-weight: 600;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 13px 15px;
+            border: 1px solid #dce3ed;
+            border-radius: 10px;
+            background: #fdfefe;
+            color: #26374d;
+            font: inherit;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            border-color: #f59e0b;
+            box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.13);
+        }
+
+        .form-group textarea {
+            min-height: 110px;
+            resize: vertical;
+        }
+
+        .field-error {
+            color: #c62828;
+            font-size: 0.85rem;
+        }
+
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            gap: 12px;
+            margin-top: 30px;
+            padding-top: 24px;
+            border-top: 1px solid #edf0f5;
+        }
+
+        .btn-form {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 12px 21px;
+            border-radius: 10px;
+            font-size: 0.94rem;
+            font-weight: 700;
+            text-decoration: none;
+            cursor: pointer;
+            transition: transform 0.2s, background 0.2s;
+        }
+
+        .btn-cancel {
+            border: 1px solid #dce3ed;
+            color: #34445a;
+            background: #ffffff;
+        }
+
+        .btn-save {
+            border: 1px solid #f59e0b;
+            background: #f59e0b;
+            color: #17283f;
+        }
+
+        .btn-form:hover {
+            transform: translateY(-1px);
+        }
+
+        .btn-save:hover {
+            background: #e99100;
+        }
+
+        .alert-error {
+            margin-bottom: 22px;
+            padding: 14px 16px;
+            border-radius: 10px;
+            color: #9f2525;
+            background: #fff0f0;
+            border: 1px solid #ffd4d4;
+        }
+
+        .form-note {
+            margin-top: 22px;
+            color: #788497;
+            font-size: 0.85rem;
+            line-height: 1.6;
+        }
+
+        @media (max-width: 650px) {
+            .product-form-card {
+                padding: 22px;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .form-group.full-width {
+                grid-column: auto;
+            }
+
+            .form-actions {
+                flex-direction: column-reverse;
+                align-items: stretch;
+            }
+        }
+    </style>
+</head>
+
+<body>
+<div class="app-layout">
+
+    <aside class="sidebar">
+        <a th:href="@{/}" class="brand">
+            <span class="brand-icon">F</span>
+            <span>Ferretería<span class="brand-light">Pro</span></span>
+        </a>
+
+        <p class="menu-label">MENÚ PRINCIPAL</p>
+
+        <nav class="sidebar-nav">
+            <a th:href="@{/}" class="nav-link">
+                <span>▦</span> Inicio
+            </a>
+            <a th:href="@{/productos}" class="nav-link active">
+                <span>▤</span> Productos
+            </a>
+            <a th:href="@{/ventas}" class="nav-link">
+                <span>↗</span> Ventas
+            </a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <span class="status-dot"></span>
+            Sistema activo
+        </div>
+    </aside>
+
+    <main class="main-content">
+        <div class="product-form-container">
+
+            <header class="form-heading">
+                <span class="eyebrow">INVENTARIO</span>
+                <h1 th:text="${producto.id != null ? 'Editar producto' : 'Nuevo producto'}">
+                    Nuevo producto
+                </h1>
+                <p>Completa la información para mantener actualizado tu inventario.</p>
+            </header>
+
+            <section class="product-form-card">
+
+                <div class="alert-error"
+                     th:if="${#fields.hasErrors('producto.*')}">
+                    Revisa los campos señalados antes de guardar el producto.
+                </div>
+
+                <form th:action="@{/productos/guardar}"
+                      th:object="${producto}"
+                      method="post">
+
+                    <input type="hidden" th:field="*{id}">
+
+                    <div class="form-grid">
+
+                        <div class="form-group full-width">
+                            <label for="nombre">Nombre del producto *</label>
+                            <input id="nombre"
+                                   type="text"
+                                   th:field="*{nombre}"
+                                   placeholder="Ej. Martillo profesional"
+                                   maxlength="120"
+                                   required>
+                            <small class="field-error"
+                                   th:if="${#fields.hasErrors('nombre')}"
+                                   th:errors="*{nombre}"></small>
+                        </div>
+
+                        <div class="form-group full-width">
+                            <label for="descripcion">Descripción</label>
+                            <textarea id="descripcion"
+                                      th:field="*{descripcion}"
+                                      placeholder="Describe las características del producto..."
+                                      maxlength="500"></textarea>
+                            <small class="field-error"
+                                   th:if="${#fields.hasErrors('descripcion')}"
+                                   th:errors="*{descripcion}"></small>
+                        </div>
+
+                        <div class="form-group full-width">
+                            <label for="categoria">Categoría *</label>
+                            <input id="categoria"
+                                   type="text"
+                                   th:field="*{categoria}"
+                                   placeholder="Ej. Herramientas"
+                                   maxlength="100"
+                                   required>
+                            <small class="field-error"
+                                   th:if="${#fields.hasErrors('categoria')}"
+                                   th:errors="*{categoria}"></small>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="precio">Precio en quetzales (Q) *</label>
+                            <input id="precio"
+                                   type="number"
+                                   th:field="*{precio}"
+                                   placeholder="0.00"
+                                   min="0.01"
+                                   step="0.01"
+                                   required>
+                            <small class="field-error"
+                                   th:if="${#fields.hasErrors('precio')}"
+                                   th:errors="*{precio}"></small>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="existencias">Cantidad disponible *</label>
+                            <input id="existencias"
+                                   type="number"
+                                   th:field="*{existencias}"
+                                   placeholder="0"
+                                   min="0"
+                                   step="1"
+                                   required>
+                            <small class="field-error"
+                                   th:if="${#fields.hasErrors('existencias')}"
+                                   th:errors="*{existencias}"></small>
+                        </div>
+
+                    </div>
+
+                    <div class="form-actions">
+                        <a th:href="@{/productos}" class="btn-form btn-cancel">
+                            Cancelar
+                        </a>
+
+                        <button type="submit" class="btn-form btn-save">
+                            <span th:text="${producto.id != null ? 'Guardar cambios' : 'Guardar producto'}">
+                                Guardar producto
+                            </span>
+                        </button>
+                    </div>
+
+                    <p class="form-note">
+                        Los campos marcados con * deben completarse.
+                        Verifica el precio y las existencias antes de guardar.
+                    </p>
+
+                </form>
+            </section>
+
+        </div>
+    </main>
+</div>
+</body>
+</html>

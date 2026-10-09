@@ -1,0 +1,252 @@
+
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nueva venta | Ferretería Pro</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+    <link rel="stylesheet" th:href="@{/css/ventas.css}">
+</head>
+<body>
+
+<div class="app-layout">
+
+    <aside class="sidebar">
+        <a th:href="@{/}" class="brand">
+            <span class="brand-icon">F</span>
+            <span>Ferretería<span class="brand-light">Pro</span></span>
+        </a>
+
+        <p class="menu-label">MENÚ PRINCIPAL</p>
+
+        <nav class="sidebar-nav">
+            <a th:href="@{/}" class="nav-link">
+                <span>▦</span> Inicio
+            </a>
+            <a th:href="@{/productos}" class="nav-link">
+                <span>▤</span> Productos
+            </a>
+            <a th:href="@{/ventas}" class="nav-link active">
+                <span>↗</span> Ventas
+            </a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <span class="status-dot"></span> Sistema activo
+        </div>
+    </aside>
+
+    <main class="main-content">
+
+        <p class="eyebrow">ÁREA COMERCIAL</p>
+        <h1>Nueva venta</h1>
+        <p class="page-description">
+            Selecciona el producto y la cantidad que deseas vender.
+        </p>
+
+        <div th:if="${error}" class="alert-error"
+             th:text="${error}"></div>
+
+        <section class="content-card sale-form-card">
+
+            <div class="section-heading">
+                <div>
+                    <h2>Información de la venta</h2>
+                    <p>El inventario se actualizará al confirmar.</p>
+                </div>
+                <span class="form-icon">Q</span>
+            </div>
+
+            <div th:if="${#lists.isEmpty(productos)}" class="empty-state">
+                <div class="empty-icon">▤</div>
+                <strong>No hay productos disponibles</strong>
+                <p>Registra un producto o revisa sus existencias antes de vender.</p>
+                <a th:href="@{/productos/nuevo}" class="btn btn-primary">
+                    Ir a productos
+                </a>
+            </div>
+
+            <form th:unless="${#lists.isEmpty(productos)}"
+                  th:action="@{/ventas/guardar}"
+                  method="post"
+                  class="sale-form">
+
+                <div class="form-group">
+                    <label for="productoId">Producto *</label>
+
+                    <select id="productoId" name="productoId" required>
+                        <option value="" disabled selected>
+                            Selecciona un producto
+                        </option>
+
+                        <option th:each="producto : ${productos}"
+                                th:value="${producto.id}"
+                                th:attr="data-precio=${producto.precio},
+                                         data-existencias=${producto.existencias}"
+                                th:text="${producto.nombre
+                                    + ' — Q '
+                                    + #numbers.formatDecimal(
+                                        producto.precio, 1, 'COMMA', 2, 'POINT')
+                                    + ' — Disponibles: '
+                                    + producto.existencias}">
+                            Martillo Profesional
+                        </option>
+                    </select>
+                </div>
+
+                <div class="product-info-panel">
+                    <div>
+                        <span>Precio unitario</span>
+                        <strong id="precioUnitario">Q 0.00</strong>
+                    </div>
+                    <div>
+                        <span>Existencias disponibles</span>
+                        <strong id="existencias">—</strong>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="cantidad">Cantidad a vender *</label>
+                    <input id="cantidad"
+                           name="cantidad"
+                           type="number"
+                           min="1"
+                           step="1"
+                           value="1"
+                           required>
+                    <small id="ayudaCantidad">
+                        Selecciona un producto para consultar sus existencias.
+                    </small>
+                </div>
+
+                <div class="sale-total-panel">
+                    <span>Total de la venta</span>
+                    <strong id="totalVenta">Q 0.00</strong>
+                </div>
+
+                <p id="mensajeValidacion"
+                   class="validation-message"
+                   role="alert"
+                   aria-live="polite"></p>
+
+                <div class="form-actions">
+                    <a th:href="@{/ventas}" class="btn btn-secondary">
+                        Cancelar
+                    </a>
+                    <button id="btnGuardar"
+                            type="submit"
+                            class="btn btn-primary">
+                        Confirmar venta
+                    </button>
+                </div>
+
+            </form>
+        </section>
+
+        <footer class="page-footer">
+            <span>Ferretería Pro</span>
+            <span>Gestión comercial</span>
+        </footer>
+
+    </main>
+</div>
+
+<script>
+    const selectorProducto = document.getElementById("productoId");
+    const campoCantidad = document.getElementById("cantidad");
+    const precioUnitario = document.getElementById("precioUnitario");
+    const existencias = document.getElementById("existencias");
+    const totalVenta = document.getElementById("totalVenta");
+    const mensajeValidacion = document.getElementById("mensajeValidacion");
+    const btnGuardar = document.getElementById("btnGuardar");
+    const formulario = document.querySelector(".sale-form");
+
+    let precioActual = 0;
+    let existenciasActuales = 0;
+
+    function formatoQuetzales(valor) {
+        return "Q " + valor.toLocaleString("es-GT", {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        });
+    }
+
+    function actualizarCalculo() {
+        if (!selectorProducto || !campoCantidad) {
+            return;
+        }
+
+        const cantidad = Number(campoCantidad.value);
+        const total = precioActual * cantidad;
+
+        totalVenta.textContent = formatoQuetzales(
+            Number.isFinite(total) ? total : 0
+        );
+
+        let mensaje = "";
+
+        if (!selectorProducto.value) {
+            mensaje = "Selecciona un producto.";
+        } else if (!Number.isInteger(cantidad) || cantidad < 1) {
+            mensaje = "La cantidad debe ser un número entero mayor que cero.";
+        } else if (cantidad > existenciasActuales) {
+            mensaje = "No hay suficientes unidades disponibles.";
+        }
+
+        mensajeValidacion.textContent = mensaje;
+
+        if (btnGuardar) {
+            btnGuardar.disabled = mensaje !== "";
+        }
+    }
+
+    function actualizarProducto() {
+        const opcion = selectorProducto.selectedOptions[0];
+
+        if (!opcion || !selectorProducto.value) {
+            precioActual = 0;
+            existenciasActuales = 0;
+            precioUnitario.textContent = formatoQuetzales(0);
+            existencias.textContent = "—";
+            actualizarCalculo();
+            return;
+        }
+
+        precioActual = Number(opcion.dataset.precio);
+        existenciasActuales = Number(opcion.dataset.existencias);
+
+        precioUnitario.textContent = formatoQuetzales(precioActual);
+        existencias.textContent = existenciasActuales + " unidades";
+
+        campoCantidad.max = existenciasActuales;
+
+        document.getElementById("ayudaCantidad").textContent =
+            "Puedes vender entre 1 y " + existenciasActuales + " unidades.";
+
+        actualizarCalculo();
+    }
+
+    if (selectorProducto) {
+        selectorProducto.addEventListener("change", actualizarProducto);
+    }
+
+    if (campoCantidad) {
+        campoCantidad.addEventListener("input", actualizarCalculo);
+    }
+
+    if (formulario) {
+        formulario.addEventListener("submit", function(evento) {
+            actualizarCalculo();
+
+            if (mensajeValidacion.textContent !== "") {
+                evento.preventDefault();
+            }
+        });
+    }
+
+    actualizarCalculo();
+</script>
+
+</body>
+</html>

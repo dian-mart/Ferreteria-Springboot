@@ -1,0 +1,294 @@
+
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ventas | Ferretería Pro</title>
+
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+    <link rel="stylesheet" th:href="@{/css/ventas.css}">
+
+    <style>
+        .sales-actions {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-invoice {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            padding: 9px 13px;
+            border: 1px solid #dce6f5;
+            border-radius: 9px;
+            background: #edf4ff;
+            color: #2457a6;
+            font-size: 13px;
+            font-weight: 700;
+            text-decoration: none;
+            white-space: nowrap;
+            transition: background 0.2s ease, transform 0.2s ease;
+        }
+
+        .btn-invoice:hover {
+            background: #dceaff;
+            transform: translateY(-1px);
+        }
+
+        .data-table td {
+            vertical-align: middle;
+        }
+
+        @media (max-width: 900px) {
+            .sales-history .table-responsive {
+                overflow-x: auto;
+            }
+
+            .data-table {
+                min-width: 900px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="app-layout">
+
+    <aside class="sidebar">
+        <a th:href="@{/}" class="brand">
+            <span class="brand-icon">F</span>
+            <span>Ferretería<span class="brand-light">Pro</span></span>
+        </a>
+
+        <p class="menu-label">MENÚ PRINCIPAL</p>
+
+        <nav class="sidebar-nav">
+            <a th:href="@{/}" class="nav-link">
+                <span>▦</span> Inicio
+            </a>
+
+            <a th:href="@{/productos}" class="nav-link">
+                <span>▤</span> Productos
+            </a>
+
+            <a th:href="@{/ventas}" class="nav-link active">
+                <span>↗</span> Ventas
+            </a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <span class="status-dot"></span> Sistema activo
+        </div>
+    </aside>
+
+    <main class="main-content">
+
+        <div class="page-heading">
+            <div>
+                <p class="eyebrow">ÁREA COMERCIAL</p>
+                <h1>Ventas</h1>
+
+                <p class="page-description">
+                    Registra operaciones y consulta el historial de ventas.
+                </p>
+            </div>
+
+            <a th:href="@{/ventas/nueva}" class="btn btn-primary">
+                + Nueva venta
+            </a>
+        </div>
+
+        <div th:if="${mensaje}"
+             class="alert-success"
+             th:text="${mensaje}">
+        </div>
+
+        <div th:if="${error}"
+             class="alert-error"
+             th:text="${error}">
+        </div>
+
+        <section class="stats-grid">
+
+            <article class="stat-card">
+                <div class="stat-icon orange">▤</div>
+
+                <p class="stat-label">VENTAS REGISTRADAS</p>
+
+                <h2 th:text="${totalVentas}">0</h2>
+
+                <p class="stat-description">
+                    Operaciones realizadas
+                </p>
+            </article>
+
+            <article class="stat-card">
+                <div class="stat-icon blue">Q</div>
+
+                <p class="stat-label">INGRESOS ACUMULADOS</p>
+
+                <h2>
+                    Q
+                    <span th:text="${#numbers.formatDecimal(
+                        totalRecaudado, 1, 'COMMA', 2, 'POINT')}">
+                        0.00
+                    </span>
+                </h2>
+
+                <p class="stat-description">
+                    Importe de las ventas registradas
+                </p>
+            </article>
+
+            <article class="stat-card">
+                <div class="stat-icon green">✓</div>
+
+                <p class="stat-label">ESTADO DEL MÓDULO</p>
+
+                <h2 class="status-active">Activo</h2>
+
+                <p class="stat-description">
+                    Registro de operaciones disponible
+                </p>
+            </article>
+
+        </section>
+
+        <section class="content-card sales-history">
+
+            <div class="section-heading">
+                <div>
+                    <h2>Historial de ventas</h2>
+
+                    <p>
+                        Consulta los productos vendidos, sus importes
+                        y sus comprobantes.
+                    </p>
+                </div>
+
+                <span class="count-badge"
+                      th:text="${totalVentas} + ' ventas'">
+                    0 ventas
+                </span>
+            </div>
+
+            <div class="table-responsive">
+
+                <table class="data-table">
+
+                    <thead>
+                    <tr>
+                        <th>N.º</th>
+                        <th>FECHA</th>
+                        <th>PRODUCTO</th>
+                        <th>CANTIDAD</th>
+                        <th>PRECIO UNITARIO</th>
+                        <th>TOTAL</th>
+                        <th>ACCIONES</th>
+                    </tr>
+                    </thead>
+
+                    <tbody>
+
+                    <tr th:each="venta : ${ventas}">
+
+                        <td th:text="${venta.id}">
+                            1
+                        </td>
+
+                        <td th:text="${#temporals.format(
+                            venta.fecha, 'dd/MM/yyyy HH:mm')}">
+                            08/10/2026 18:30
+                        </td>
+
+                        <td>
+                            <strong th:text="${venta.producto.nombre}">
+                                Martillo Profesional
+                            </strong>
+                        </td>
+
+                        <td>
+                            <span class="quantity-badge"
+                                  th:text="${venta.cantidad} + ' unidades'">
+                                2 unidades
+                            </span>
+                        </td>
+
+                        <td>
+                            Q
+                            <span th:text="${#numbers.formatDecimal(
+                                venta.precioUnitario,
+                                1, 'COMMA', 2, 'POINT')}">
+                                85.00
+                            </span>
+                        </td>
+
+                        <td class="total-cell">
+                            Q
+                            <span th:text="${#numbers.formatDecimal(
+                                venta.total,
+                                1, 'COMMA', 2, 'POINT')}">
+                                170.00
+                            </span>
+                        </td>
+
+                        <td>
+                            <div class="sales-actions">
+                                <a class="btn-invoice"
+                                   th:href="@{/ventas/{id}/factura(id=${venta.id})}"
+                                   title="Consultar e imprimir la factura">
+                                    ▤ Ver factura
+                                </a>
+                            </div>
+                        </td>
+
+                    </tr>
+
+                    <tr th:if="${#lists.isEmpty(ventas)}">
+
+                        <td colspan="7" class="empty-state">
+
+                            <div class="empty-icon">▤</div>
+
+                            <strong>
+                                Aún no hay ventas registradas
+                            </strong>
+
+                            <p>
+                                Cuando registres una venta,
+                                aparecerá aquí.
+                            </p>
+
+                            <a th:href="@{/ventas/nueva}"
+                               class="btn btn-primary">
+                                Registrar primera venta
+                            </a>
+
+                        </td>
+
+                    </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </section>
+
+        <footer class="page-footer">
+            <span>Ferretería Pro</span>
+            <span>Gestión comercial</span>
+        </footer>
+
+    </main>
+
+</div>
+
+</body>
+</html>
